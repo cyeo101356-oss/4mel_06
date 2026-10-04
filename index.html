@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>합창 악보 파트 연습기</title>
+<style>
+:root{--bg:#0a1120;--panel:#111b2d;--panel2:#17243a;--line:#293950;--text:#eef5ff;--muted:#9cabc0;--blue:#67a8ff;--green:#55d69c;--red:#ff7288}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#07101d,#101b2d);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit}button{cursor:pointer}.app{max-width:1180px;margin:auto;padding:18px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}h1{font-size:clamp(23px,4vw,34px);margin:0}.sub{font-size:13px;color:var(--muted);margin-top:5px}.tag{border:1px solid var(--line);padding:7px 10px;border-radius:99px;font-size:11px;color:#cfe0f7}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:15px}.card{background:rgba(17,27,45,.95);border:1px solid var(--line);border-radius:18px;padding:16px}.wide{grid-column:1/-1}.title{font-size:16px;font-weight:800;margin-bottom:12px}
+.drop{border:1.5px dashed #4a6281;border-radius:15px;padding:22px;text-align:center;background:#0d1727}.drop.drag{border-color:var(--blue);background:#14263e}.file{display:none}
+.btn{border:1px solid var(--line);background:#223149;color:#fff;border-radius:11px;padding:10px 13px;min-height:44px}.primary{border:0;background:linear-gradient(135deg,#347fe9,#705ce9);font-weight:800}.btnrow{display:flex;flex-wrap:wrap;gap:8px}.filename{font-size:13px;color:#d5e0ef;margin-top:10px;word-break:break-all}.hint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:10px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mode{text-align:left;min-height:61px}.mode b{display:block;font-size:13px}.mode span{display:block;color:var(--muted);font-size:11px;margin-top:3px}.mode.active{border-color:var(--blue);background:#193353;box-shadow:0 0 0 1px #67a8ff33 inset}
+.check{display:flex;align-items:center;gap:9px;margin-top:11px;padding:11px;border:1px solid var(--line);border-radius:11px;font-size:13px}.check input{width:18px;height:18px;accent-color:var(--blue)}
+.transport{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:12px}.play{width:52px;height:52px;border-radius:50%;border:0;background:var(--green);font-size:18px;font-weight:900;color:#062217}.progress{height:8px;background:#26344a;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#67a8ff,#8876ff)}.time{font-size:11px;color:var(--muted);margin-top:5px}.stop{min-height:44px}
+.viewer{min-height:420px;border:1px solid var(--line);border-radius:13px;background:#080e18;display:flex;align-items:center;justify-content:center;overflow:auto}.viewer img{max-width:100%;display:block}.viewer iframe{width:100%;height:600px;border:0}.empty{text-align:center;padding:40px;color:var(--muted);line-height:1.8}
+.status{font-size:12px;color:#c4d2e5;min-height:18px;margin-top:10px}.parts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.pill{border:1px solid var(--line);border-radius:99px;padding:6px 9px;color:var(--muted);font-size:11px}.pill.on{border-color:#5899df;color:#fff;background:#183452}
+.settings{margin-top:11px;padding:11px;border:1px solid var(--line);border-radius:11px}.settings label{display:block;font-size:12px;color:#cbd8ea;margin-bottom:6px}.settings input{width:100%;background:#0b1422;border:1px solid var(--line);border-radius:8px;color:#fff;padding:9px}
+details{margin-top:10px}summary{font-size:12px;color:#b7c6da;cursor:pointer}.log{margin-top:7px;background:#080f19;border-radius:9px;padding:9px;font:11px ui-monospace,monospace;color:#9eb1c9;white-space:pre-wrap;max-height:160px;overflow:auto}
+footer{text-align:center;color:#718097;font-size:11px;padding:18px 0}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.wide{grid-column:auto}.viewer{min-height:300px}.viewer iframe{height:430px}}
+@media(max-width:480px){.app{padding:11px}.modes{grid-template-columns:1fr}.transport{grid-template-columns:auto 1fr}.stop{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><h1>🎼 합창 악보 파트 연습기</h1><div class="sub">PDF · JPG · MusicXML · MIDI → S/A/T/B 실제 멜로디 피아노 연주</div></div><div class="tag">GitHub Pages</div></header>
+
+<div class="layout">
+<section class="card">
+<div class="title">① 악보 파일 불러오기</div>
+<div class="drop" id="drop">
+<label class="btn primary">📁 파일 불러오기<input class="file" id="file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.musicxml,.xml,.mxl,.mid,.midi,application/pdf,image/*"></label>
+<div class="filename" id="filename">PDF/JPG/PNG 또는 MusicXML/MIDI 파일을 선택하세요.</div>
+<div class="hint">스마트폰은 파일 불러오기를 누르면 파일 앱에서 선택할 수 있습니다.<br>PC에서는 파일을 끌어놓을 수도 있습니다.</div>
+</div>
+<div class="btnrow" style="margin-top:10px">
+<button class="btn" id="analyze" type="button">🔎 악보 판독 시작</button>
+<button class="btn" id="clear" type="button">초기화</button>
+</div>
+<div class="settings">
+<label for="omrUrl">PDF/JPG 자동 판독용 OMR 서버 주소 <small>(선택)</small></label>
+<input id="omrUrl" placeholder="예: https://내-OMR-서버주소/api/omr">
+<div class="hint">GitHub Pages는 정적 웹사이트이므로 PDF/JPG를 실제 음표로 판독하려면 OMR 서버 주소가 필요합니다. 서버가 MusicXML을 반환하면 아래 재생기가 자동으로 성부를 분석합니다.</div>
+</div>
+<div class="parts" id="parts"><span class="pill">S 소프라노</span><span class="pill">A 알토</span><span class="pill">T 테너</span><span class="pill">B 베이스</span></div>
+<div class="status" id="status" aria-live="polite"></div>
+<details><summary>판독 정보</summary><div class="log" id="log">파일을 기다리는 중입니다.</div></details>
+</section>
+
+<section class="card">
+<div class="title">② 듣기 선택</div>
+<div class="modes">
+<button class="btn mode active" data-mode="accomp"><b>1. 악보상 반주 연주</b><span>반주 트랙이 있으면 재생</span></button>
+<button class="btn mode" data-mode="all"><b>2. 모든 화음 피아노</b><span>S·A·T·B 동시 재생</span></button>
+<button class="btn mode" data-mode="S"><b>3. 소프라노 피아노</b><span>S 멜로디만 크게</span></button>
+<button class="btn mode" data-mode="A"><b>4. 알토 피아노</b><span>A 멜로디만 크게</span></button>
+<button class="btn mode" data-mode="T"><b>5. 테너 피아노</b><span>T 멜로디만 크게</span></button>
+<button class="btn mode" data-mode="B"><b>6. 베이스 피아노</b><span>B 멜로디만 크게</span></button>
+</div>
+<label class="check"><input id="background" type="checkbox"> <span><b>다른파트 백그라운드</b><br><small style="color:var(--muted)">선택 파트는 크게, 나머지 성부는 조용하게 함께 재생</small></span></label>
+<div class="transport">
+<button class="play" id="play" type="button">▶</button>
+<div><div class="progress"><div class="bar" id="bar"></div></div><div class="time" id="time">00:00 / 00:00</div></div>
+<button class="btn stop" id="stop" type="button">■ 정지</button>
+</div>
+<div class="status" id="playStatus"></div>
+</section>
+
+<section class="card wide">
+<div class="title">③ 악보</div>
+<div class="viewer" id="viewer"><div class="empty">악보 파일을 불러오면 여기에 표시됩니다.</div></div>
+</section>
+</div>
+<footer>합창 성부 연습용 · 브라우저에서 파일을 처리하며 OMR 서버를 사용하는 경우 해당 서버로 악보 파일이 전송됩니다.</footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let currentFile=null, mode='accomp', audio=null, raf=0, active=[];
+let score={parts:{S:[],A:[],T:[],B:[]},accomp:[],duration:0,tempo:80};
+
+function status(t){$('#status').textContent=t}
+function log(t){$('#log').textContent=t}
+function fmt(s){s=Math.max(0,Number(s)||0);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0')}
+function freq(n){return 440*Math.pow(2,(n-69)/12)}
+function readText(el,tag){let n=el.getElementsByTagNameNS('*',tag)[0]||el.getElementsByTagName(tag)[0];return n?n.textContent.trim():''}
+function pitch(el){
+ let p=el.getElementsByTagNameNS('*','pitch')[0]||el.getElementsByTagName('pitch')[0];if(!p)return null;
+ let st=readText(p,'step'), oct=Number(readText(p,'octave')), al=Number(readText(p,'alter')||0);
+ let b={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[st];return b==null?null:(oct+1)*12+b+al
+}
+function classify(name,i){
+ let x=(name||'').toLowerCase();
+ if(/soprano|소프라노/.test(x))return'S'; if(/alto|알토/.test(x))return'A';
+ if(/tenor|테너/.test(x))return'T'; if(/bass|베이스|basso/.test(x))return'B';
+ return ['S','A','T','B'][i]||'S'
+}
+function resetScore(){score={parts:{S:[],A:[],T:[],B:[]},accomp:[],duration:0,tempo:80};updatePills()}
+function updatePills(){document.querySelectorAll('#parts .pill').forEach((p,i)=>p.classList.toggle('on',!!score.parts[['S','A','T','B'][i]].length))}
+function showFile(f){
+ currentFile=f;$('#filename').textContent=f.name;let e=f.name.split('.').pop().toLowerCase();
+ if(['jpg','jpeg','png','webp'].includes(e)){let u=URL.createObjectURL(f);$('#viewer').innerHTML='<img alt="불러온 악보 이미지">';$('#viewer img').src=u;status('이미지 악보가 표시되었습니다. OMR 판독 버튼을 눌러 음표 분석을 시작하세요.');return}
+ if(e==='pdf'){let u=URL.createObjectURL(f);$('#viewer').innerHTML='<iframe title="PDF 악보" src="'+u+'"></iframe>';status('PDF 악보가 표시되었습니다. OMR 판독 버튼을 눌러 음표 분석을 시작하세요.');return}
+ let r=new FileReader();
+ if(e==='musicxml'||e==='xml'){r.onload=()=>parseXML(r.result);r.readAsText(f);return}
+ if(e==='mxl'){status('MXL은 압축된 MusicXML입니다. 가능하면 .musicxml/.xml로 저장해 사용하세요.');return}
+ if(e==='mid'||e==='midi'){r.onload=()=>parseMIDI(r.result);r.readAsArrayBuffer(f);return}
+}
+$('#file').addEventListener('change',e=>{if(e.target.files[0])showFile(e.target.files[0])});
+['dragenter','dragover'].forEach(x=>$('#drop').addEventListener(x,e=>{e.preventDefault();$('#drop').classList.add('drag')}));
+['dragleave','drop'].forEach(x=>$('#drop').addEventListener(x,e=>{e.preventDefault();$('#drop').classList.remove('drag')}));
+$('#drop').addEventListener('drop',e=>{if(e.dataTransfer.files[0])showFile(e.dataTransfer.files[0])});
+
+function parseXML(txt){
+ try{
+  let d=new DOMParser().parseFromString(txt,'application/xml');if(d.querySelector('parsererror'))throw Error('XML 형식을 읽을 수 없습니다.');
+  resetScore();let parts=[...d.getElementsByTagNameNS('*','score-part')], names=parts.map(x=>readText(x,'part-name'));
+  let els=[...d.getElementsByTagNameNS('*','part')];
+  els.forEach((part,i)=>{
+   let key=classify(names[i]||part.getAttribute('id')||'',i), time=0, div=1, notes=[];
+   [...part.getElementsByNS('*','measure')].forEach(m=>{
+    let at=m.getElementsByTagNameNS('*','attributes')[0];if(at){let z=readText(at,'divisions');if(z)div=Number(z)||div}
+    [...m.children].forEach(n=>{
+     if(n.localName==='backup'||n.localName==='forward'){let q=Number(readText(n,'duration')||0)/div;time+=n.localName==='backup'?-q:q;return}
+     if(n.localName!=='note')return;
+     let du=Number(readText(n,'duration')||0)/div, rest=!!n.getElementsByTagNameNS('*','rest')[0], p=rest?null:pitch(n);
+     let chord=!!n.getElementsByTagNameNS('*','chord')[0];
+     if(!chord){notes.push({t:time,d:du,p:p});time+=du}else if(notes.length)notes.push({t:notes[notes.length-1].t,d:du,p:p,chord:true});
+    })
+   });
+   score.parts[key].push(...notes);score.duration=Math.max(score.duration,...notes.map(n=>n.t+n.d),0)
+  });
+  updatePills();status('MusicXML 판독 완료 · '+fmt(score.duration*60/(score.tempo||80))+' · '+Object.entries(score.parts).filter(x=>x[1].length).map(x=>x[0]+':'+x[1].length).join(' / '));
+  log('MusicXML 성부: '+names.join(', ')+'\\nS '+score.parts.S.length+'음 / A '+score.parts.A.length+'음 / T '+score.parts.T.length+'음 / B '+score.parts.B.length+'음\\n※ 음표의 pitch, duration, rest, chord를 읽었습니다.');
+ }catch(e){status('MusicXML 판독 오류');log(String(e))}
+}
+function readStr(buf,o,n){return new TextDecoder().decode(new Uint8Array(buf,o,n))}
+function parseMIDI(buf){
+ try{
+  let d=new DataView(buf),u=new Uint8Array(buf);if(readStr(buf,0,4)!=='MThd')throw Error('MIDI 파일이 아닙니다.');
+  let h=d.getUint32(4),tracks=d.getUint16(10),division=d.getUint16(12),p=8+h;resetScore();
+  for(let ti=0;ti<tracks;ti++){
+   if(readStr(buf,p,4)!=='MTrk')break;let len=d.getUint32(p+4),end=p+8+len,q=p+8,time=0,run=0,on={};let ev=[];
+   const vlq=()=>{let v=0,b;do{b=u[q++];v=(v<<7)|(b&127)}while(b&128);return v};
+   while(q<end){time+=vlq();let st=u[q++];if(st<128){q--;st=run}else run=st;
+    if(st===255){let type=u[q++],n=vlq();if(type===81&&n===3)score.tempo=60000000/((u[q]<<16)|(u[q+1]<<8)|u[q+2]);q+=n;continue}
+    if((st&240)===144||(st&240)===128){let no=u[q++],ve=u[q++],key=no+'_'+(st&15),isOn=(st&240)===144&&ve>0;if(isOn)on[key]={t:time,p:no};else if(on[key]){let a=on[key];ev.push({t:a.t,d:time-a.t,p:a.p});delete on[key]}}
+    else if((st&240)===192)q++;else q+=2
+   }
+   let k=['S','A','T','B'][ti]||'S';score.parts[k].push(...ev.map(n=>({t:n.t/division,d:n.d/division,p:n.p})));score.duration=Math.max(score.duration,...ev.map(n=>(n.t+n.d)/division));p=end
+  }
+  updatePills();status('MIDI 판독 완료 · 트랙 순서로 S/A/T/B 배정');log('MIDI 트랙 '+tracks+'개를 S/A/T/B 순서로 분석했습니다.\\n템포 '+Math.round(score.tempo)+' BPM');
+ }catch(e){status('MIDI 판독 오류');log(String(e))}
+}
+async function analyzeOMR(){
+ if(!currentFile){status('먼저 PDF 또는 JPG 파일을 불러오세요.');return}
+ let ext=currentFile.name.split('.').pop().toLowerCase();
+ if(['musicxml','xml'].includes(ext)){status('이미 MusicXML입니다. 바로 재생할 수 있습니다.');return}
+ if(['mid','midi'].includes(ext)){status('이미 MIDI입니다. 바로 재생할 수 있습니다.');return}
+ let url=$('#omrUrl').value.trim();
+ if(!url){status('PDF/JPG 자동 음표 판독에는 OMR 서버가 필요합니다. OMR 서버 주소를 입력하세요.');log('현재 파일은 '+currentFile.name+' 입니다.\\nGitHub Pages는 서버측 OMR 엔진을 실행할 수 없으므로 OMR API 주소가 필요합니다.\\nAPI는 업로드 파일을 받아 MusicXML 텍스트 또는 application/xml 응답을 반환하도록 구성하세요.');return}
+ try{
+  status('OMR 서버에서 악보를 분석하는 중입니다…');$('#analyze').disabled=true;
+  let fd=new FormData();fd.append('file',currentFile,currentFile.name);
+  let res=await fetch(url,{method:'POST',body:fd});if(!res.ok)throw Error('OMR 서버 응답 오류: HTTP '+res.status);
+  let ct=res.headers.get('content-type')||'', xml;
+  if(ct.includes('application/json')){let j=await res.json();xml=j.musicxml||j.xml||j.result;if(!xml)throw Error('JSON 응답에 musicxml/xml 필드가 없습니다.')}
+  else xml=await res.text();
+  parseXML(xml);status('OMR 판독 완료. S/A/T/B 성부를 분석했습니다.');log($('#log').textContent+'\\n\\nOMR 서버 판독 결과를 MusicXML로 받아 분석했습니다.');
+ }catch(e){status('OMR 판독 실패');log('오류: '+e+'\\n\\nOMR 서버가 CORS를 허용하는지 확인하세요.');}
+ finally{$('#analyze').disabled=false}
+}
+$('#analyze').onclick=analyzeOMR;
+$('#clear').onclick=()=>{stop();currentFile=null;$('#file').value='';$('#filename').textContent='PDF/JPG/PNG 또는 MusicXML/MIDI 파일을 선택하세요.';$('#viewer').innerHTML='<div class="empty">악보 파일을 불러오면 여기에 표시됩니다.</div>';resetScore();status('');log('파일을 기다리는 중입니다.')};
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');mode=b.dataset.mode}));
+
+function piano(ctx,n,start,dur,gain){
+ let g=ctx.createGain(),o=ctx.createOscillator(),o2=ctx.createOscillator(),o3=ctx.createOscillator(),h=ctx.createGain(),h2=ctx.createGain();
+ o.type='triangle';o2.type='sine';o3.type='sine';o.frequency.value=freq(n);o2.frequency.value=freq(n)*2;o3.frequency.value=freq(n)*3;
+ h.gain.value=.18;h2.gain.value=.055;o2.connect(h);h.connect(g);o3.connect(h2);h2.connect(g);o.connect(g);g.connect(ctx.destination);
+ g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(Math.max(.001,gain),start+.012);g.gain.exponentialRampToValueAtTime(Math.max(.0001,gain*.3),start+Math.min(.22,dur*.5));g.gain.exponentialRampToValueAtTime(.0001,start+dur);
+ [o,o2,o3].forEach(x=>{x.start(start);x.stop(start+dur+.04);active.push(x)})
+}
+function events(k){return score.parts[k]||[]}
+function tracks(){
+ if(mode==='all')return[['S',.22],['A',.22],['T',.22],['B',.22]];
+ if(mode==='accomp')return[['S',.15],['A',.15],['T',.15],['B',.15]];
+ let a=[[mode,.58]];if($('#background').checked)['S','A','T','B'].forEach(k=>{if(k!==mode&&events(k).length)a.push([k,.045])});return a
+}
+function stop(){if(audio){try{audio.close()}catch(e){}audio=null}active=[];cancelAnimationFrame(raf);$('#bar').style.width='0%';$('#time').textContent='00:00 / 00:00'}
+function play(){
+ stop();if(!score.duration){$('#playStatus').textContent='먼저 MusicXML/MIDI를 불러오거나 PDF/JPG를 OMR 판독하세요.';return}
+ audio=new (window.AudioContext||window.webkitAudioContext)();let now=audio.currentTime+.08,beat=60/(score.tempo||80),list=tracks();
+ list.forEach(([k,g])=>events(k).forEach(n=>{if(n.p==null)return;piano(audio,n.p,now+n.t*beat,Math.max(.035,n.d*beat*.94),g)}));
+ let total=score.duration*beat*1000,start=performance.now();$('#playStatus').textContent=(mode==='S'?'소프라노':mode==='A'?'알토':mode==='T'?'테너':mode==='B'?'베이스':mode==='all'?'모든 화음':'악보상 반주')+' 재생 중';
+ function tick(){let e=performance.now()-start,p=Math.min(100,e/total*100);$('#bar').style.width=p+'%';$('#time').textContent=fmt(e/1000)+' / '+fmt(total/1000);if(e<total)raf=requestAnimationFrame(tick);else stop()}raf=requestAnimationFrame(tick)
+}
+$('#play').onclick=play;$('#stop').onclick=stop;
+</script>
+</body>
+</html>
